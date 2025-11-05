@@ -18,28 +18,14 @@ export type Post = {
   image?: string;
 };
 
-type Page = 'home' | 'search' | 'messages' | 'profile' | 'editProfile';
+export type UserProfile = {
+  name: string;
+  handle: string;
+  avatar: string;
+  bio: string;
+};
 
-const initialPosts: Post[] = [
-  {
-    id: 1,
-    author: {
-      name: 'Alice',
-      handle: '@alice',
-      avatar: 'https://i.pravatar.cc/150?u=alice',
-    },
-    content: 'Que dia lindo para um passeio no parque! ☀️🌳 #natureza',
-  },
-  {
-    id: 2,
-    author: {
-      name: 'Bob',
-      handle: '@bob',
-      avatar: 'https://i.pravatar.cc/150?u=bob',
-    },
-    content: 'Acabei de terminar um projeto incrível de programação. Tão satisfeito com o resultado! 💻🚀 #devlife',
-  }
-];
+type Page = 'home' | 'search' | 'messages' | 'profile' | 'editProfile';
 
 interface LayoutProps {
   onLogout: () => void;
@@ -48,16 +34,26 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ onLogout }) => {
   const [activePage, setActivePage] = useState<Page>('home');
   const [isCreatePostModalOpen, setCreatePostModalOpen] = useState(false);
-  const [posts, setPosts] = useState<Post[]>(initialPosts);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [userProfile, setUserProfile] = useState<UserProfile>({
+    name: 'Seu Nome',
+    handle: '@seunome',
+    avatar: '',
+    bio: 'Esta é uma bio de exemplo. Fale um pouco sobre você, seus hobbies e interesses.',
+  });
 
-  // Fix: Updated handleAddPost to accept an optional image URL.
+  const handleUpdateProfile = (newProfileData: Partial<UserProfile>) => {
+    setUserProfile(prev => ({ ...prev, ...newProfileData }));
+    setActivePage('profile');
+  };
+
   const handleAddPost = (content: string, image?: string) => {
     const newPost: Post = {
       id: Date.now(),
       author: {
-        name: 'Seu Nome',
-        handle: '@seunome',
-        avatar: 'https://i.pravatar.cc/150?u=currentuser',
+        name: userProfile.name,
+        handle: userProfile.handle,
+        avatar: userProfile.avatar,
       },
       content,
       image,
@@ -75,9 +71,9 @@ const Layout: React.FC<LayoutProps> = ({ onLogout }) => {
       case 'messages':
         return <MessagesPage />;
       case 'profile':
-        return <ProfilePage onEditProfile={() => setActivePage('editProfile')} onLogout={onLogout} />;
+        return <ProfilePage userProfile={userProfile} onEditProfile={() => setActivePage('editProfile')} onLogout={onLogout} />;
       case 'editProfile':
-        return <EditProfilePage onBack={() => setActivePage('profile')} />;
+        return <EditProfilePage userProfile={userProfile} onSave={handleUpdateProfile} onBack={() => setActivePage('profile')} />;
       default:
         return <HomePage posts={posts} />;
     }
@@ -114,7 +110,6 @@ const Layout: React.FC<LayoutProps> = ({ onLogout }) => {
                 <PlusCircleIcon className="w-6 h-6" />
               </button>
               <NavButton page="search"><SearchIcon className="w-6 h-6" /></NavButton>
-              {/* Fix: Corrected the broken navigation buttons. */}
               <NavButton page="messages"><MessageIcon className="w-6 h-6" /></NavButton>
               <NavButton page="profile"><UserIcon className="w-6 h-6" /></NavButton>
             </div>

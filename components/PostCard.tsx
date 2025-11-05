@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Post } from './Layout';
-import { HeartIcon, CommentIcon } from './Icons';
+import { HeartIcon, CommentIcon, UserIcon } from './Icons';
 
 interface PostCardProps {
   post: Post;
@@ -11,7 +11,13 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     <div className="bg-gray-800/50 border border-gray-700 rounded-xl overflow-hidden">
       <div className="p-6">
         <div className="flex items-center">
-          <img src={post.author.avatar} alt={post.author.name} className="w-12 h-12 rounded-full" />
+          {post.author.avatar ? (
+            <img src={post.author.avatar} alt={post.author.name} className="w-12 h-12 rounded-full object-cover" />
+           ) : (
+            <div className="w-12 h-12 rounded-full bg-gray-700 flex items-center justify-center">
+              <UserIcon className="w-8 h-8 text-gray-500" />
+            </div>
+           )}
           <div className="ml-4">
             <p className="font-bold text-white">{post.author.name}</p>
             <p className="text-sm text-gray-400">{post.author.handle}</p>
